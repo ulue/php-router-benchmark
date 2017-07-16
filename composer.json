@@ -1,9 +1,18 @@
 {
+  "minimum-stability": "dev",
   "require": {
     "nice/bench": "~1.0",
     "nikic/fast-route": "dev-master",
-    "corneltek/pux": "dev-master",
+    "inhere/sroute": "dev-master",
+    "phroute/phroute": "dev-master",
     "symfony/routing": "dev-master",
-    "aura/router": "2.x-dev"
+    "aura/router": "3.x-dev",
+    "corneltek/pux": "dev-master"
+  },
+  "repositories": {
+      "packagist": {
+          "type": "composer",
+          "url": "https://packagist.phpcomposer.com"
+      }
   }
 }
