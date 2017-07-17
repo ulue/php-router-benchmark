@@ -99,8 +99,7 @@ function getRandomParts()
  */
 function setupSRouter(Benchmark $benchmark, $routes, $args)
 {
-    // $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $argString = implode('/', array_map(function ($i) { return "(:any)$i"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
     $firstStr = $lastStr = '';
 
     for ($i = 0; $i < $routes; $i++) {
@@ -108,10 +107,10 @@ function setupSRouter(Benchmark $benchmark, $routes, $args)
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
         if (0 === $i) {
-            $firstStr = str_replace(array('(:', ')'), '', $str);
+            $firstStr = str_replace(array('{', '}'), '', $str);
         }
 
-        $lastStr = str_replace(array('(:', ')'), '', $str);
+        $lastStr = str_replace(array('{', '}'), '', $str);
 
         SRouter::map('GET', $str, 'handler' . $i);
     }

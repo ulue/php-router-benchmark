@@ -100,8 +100,7 @@ function getRandomParts()
  */
 function setupSRouter(Benchmark $benchmark, $routes, $args)
 {
-    // $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $argString = implode('/', array_map(function ($i) { return "(:any)$i"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
     $str = $firstStr = $lastStr = '';
 
     for ($i = 0; $i < $routes; $i++) {
@@ -109,10 +108,10 @@ function setupSRouter(Benchmark $benchmark, $routes, $args)
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
         if (0 === $i) {
-            $firstStr = str_replace(array('(:', ')'), '', $str);
+            $firstStr = str_replace(array('{', '}'), '', $str);
         }
 
-        $lastStr = str_replace(array('(:', ')'), '', $str);
+        $lastStr = str_replace(array('{', '}'), '', $str);
 
         SRouter::map('GET', $str, 'handler' . $i);
     }
@@ -309,14 +308,14 @@ function setupSymfony2(Benchmark $benchmark, $routes, $args)
     }
 
     $benchmark->register(sprintf('Symfony2 - last route (%s routes)', $routes), function () use ($router, $lastStr) {
-            $route = $router->match($lastStr);
-        });
+        $route = $router->match($lastStr);
+    });
 
     $benchmark->register(sprintf('Symfony2 - unknown route (%s routes)', $routes), function () use ($router) {
-            try {
-                $route = $router->match('/not-even-real');
-            } catch (ResourceNotFoundException $e) { }
-        });
+        try {
+            $route = $router->match('/not-even-real');
+        } catch (ResourceNotFoundException $e) { }
+    });
 }
 
 /*

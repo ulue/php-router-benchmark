@@ -4,6 +4,15 @@ PHP Router Benchmark
 The intent here is to benchmark different PHP routing solutions. This is a micro-optimization, done purely out of 
 dumb curiosity.
 
+## Question
+
+class `Nice\Benchmark` 87-89 line(bug):
+
+```php
+    $start = microtime(1);
+    $test->run($this->parameters);
+    $testResults[] = round(microtime(1) - $start, 10);
+```
 
 Installation
 ------------
