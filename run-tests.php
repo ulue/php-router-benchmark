@@ -13,7 +13,7 @@ $numArgs = 9;
 // require __DIR__ . '/worst-case-tests.php';
 // $worstCaseBenchmark = WorstCaseMatching\setupBenchmark($numIterations, $numRoutes, $numArgs);
 
-require __DIR__ . '/first-route-tests.php';
+require __DIR__ . '/first-test-cases.php';
 $firstRouteBenchmark = FirstRouteMatching\setupBenchmark($numIterations, $numRoutes, $numArgs);
 
 $collection = new BenchmarkCollection();

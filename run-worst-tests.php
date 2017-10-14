@@ -10,7 +10,7 @@ $numIterations = 1000;
 $numRoutes = 1000;
 $numArgs = 9;
 
-require __DIR__ . '/worst-case-tests.php';
+require __DIR__ . '/worst-test-cases.php';
 $worstCaseBenchmark = WorstCaseMatching\setupBenchmark($numIterations, $numRoutes, $numArgs);
 
 // require __DIR__ . '/first-route-tests.php';
