@@ -7,7 +7,8 @@
     "phroute/phroute": "dev-master",
     "symfony/routing": "dev-master",
     "aura/router": "3.x-dev",
-    "corneltek/pux": "dev-master"
+    "corneltek/pux": "dev-master",
+    "windwalker/router": "^3.0@dev"
   },
   "repositories": {
       "packagist": {
