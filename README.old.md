@@ -69,6 +69,9 @@ This benchmark tests how quickly each router can match the first route. 1,000 ro
 
 This benchmark consists of 6 tests. Each test is executed 1,000 times, the results pruned, and then averaged. Values that fall outside of 3 standard deviations of the mean are discarded.
 
+
+Test Name | Results | Time | + Interval | Change
+--------- | ------- | ---- | ---------- | ------
 Pux PHP - first route(1000) | 999 | 0.0000140631 | +0.0000000000 | baseline
 FastRoute - first route(1000) | 998 | 0.0000143997 | +0.0000003366 | 2% slower
 SRouter - first route(1000) | 996 | 0.0000171480 | +0.0000030848 | 22% slower

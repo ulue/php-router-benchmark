@@ -3,6 +3,10 @@
 The intent here is to benchmark different PHP routing solutions. This is a micro-optimization, done purely out of 
 dumb curiosity.
 
+- the test script is forked form https://github.com/tyler-sommer/php-router-benchmark
+- test frmaework is: https://github.com/ulue/nice-bench. it is forked form `nice/bench`
+- **Test time** 2017.12.03
+
 ## Question
 
 class `Nice\Benchmark` 87-89 line(bug):
@@ -53,11 +57,25 @@ not installed, the tests for R3 will be skipped.
 
 ## Currently
 
-The current test creates 1000 routes, each with a randomized prefix and postfix, with 9 parameters each.
+The current test creates **1000** routes, each with a randomized prefix and postfix, with **9** parameters each.
 
 It was run with the [Pux](https://github.com/c9s/pux) and [R3](https://github.com/c9s/php-r3) extensions enabled.
 
 An example route: `/9b37eef21e/{arg1}/{arg2}/{arg3}/{arg4}/{arg5}/{arg6}/{arg7}/{arg8}/{arg9}/bda37e9f9b`
+
+## Collect Routes Time(ms):
+
+- nikic/fast-route: 69.603 ms
+- nikic/fast-route(cached): 3.734 ms
+- inhere/sroute(SRouter): 29.704 ms
+- inhere/sroute(ORouter): 29.164 ms
+- Symfony2/routing: 16.976 ms
+- Symfony2/routing(cached): 17.666 ms
+- corneltek/pux(php): 92.823 ms
+- altorouter/altorouter: 5.203 ms
+- phroute/phroute: 91.662 ms
+- noahbuscher/macaw: 8.854 ms
+- noodlehaus/dispatch: 7.203 ms
 
 ## Worst-case matching
 
@@ -73,43 +91,49 @@ eviations of the mean are discarded.
 
 Test Name | Results | Time(ms) | + Interval | Change
 --------- | ------- | ---- | ---------- | ------
-inhere/sroute(SRouter) - unknown route (1000 routes) | 991 | 0.012111 | +0.000000 | baseline
-inhere/sroute(ORouter) - unknown route (1000 routes) | 996 | 0.012150 | +0.000040 | baseline
-inhere/sroute(SRouter) - last route (1000 routes) | 995 | 0.027694 | +0.015583 | 129% slower
-inhere/sroute(ORouter) - last route (1000 routes) | 987 | 0.028067 | +0.015957 | 132% slower
-Symfony2 Dumped - last route (1000 routes) | 993 | 0.036652 | +0.024541 | 203% slower
-Symfony2 Dumped - unknown route (1000 routes) | 986 | 0.037629 | +0.025519 | 211% slower
-phroute/phroute - unknown route (1000 routes) | 999 | 0.120728 | +0.108617 | 897% slower
-phroute/phroute - last route (1000 routes) | 999 | 0.131651 | +0.119540 | 987% slower
-FastRoute - unknown route (1000 routes) | 990 | 0.137105 | +0.124994 | 1032% slower
-FastRoute(cached) - unknown route (1000 routes) | 982 | 0.137144 | +0.125033 | 1032% slower
-FastRoute(cached) - last route (1000 routes) | 999 | 0.137838 | +0.125727 | 1038% slower
-FastRoute - last route (1000 routes) | 999 | 0.161543 | +0.149432 | 1234% slower
-Pux PHP - unknown route (1000 routes) | 979 | 0.865524 | +0.853413 | 7047% slower
-Pux PHP - last route (1000 routes) | 999 | 0.929266 | +0.917155 | 7573% slower
-AltoRouter - unknown route (1000 routes) | 980 | 2.257993 | +2.245882 | 18545% slower
-AltoRouter - last route (1000 routes) | 991 | 2.306883 | +2.294772 | 18948% slower
-Macaw - unknown route (1000 routes) | 988 | 2.640169 | +2.628059 | 21700% slower
-Macaw - last route (1000 routes) | 999 | 2.696185 | +2.684074 | 22163% slower
-Symfony2 - unknown route (1000 routes) | 988 | 4.328796 | +4.316685 | 35643% slower
-Symfony2 - last route (1000 routes) | 999 | 4.388761 | +4.376650 | 36139% slower
-noodlehaus/dispatch - unknown route (1000 routes) | 987 | 4.873466 | +4.861355 | 40141% slower
-noodlehaus/dispatch - last route (1000 routes) | 999 | 4.971496 | +4.959385 | 40950% slower
+inhere/sroute(SRouter) - unknown route (1000 routes) | 997 | 0.009566 | +0.000000 | baseline
+inhere/sroute(ORouter) - unknown route (1000 routes) | 995 | 0.009601 | +0.000036 | baseline
+inhere/sroute(SRouter) - last route (1000 routes) | 999 | 0.024386 | +0.014820 | 155% slower
+inhere/sroute(ORouter) - last route (1000 routes) | 975 | 0.024554 | +0.014989 | 157% slower
+Symfony2 Cached - last route (1000 routes) | 997 | 0.029091 | +0.019525 | 204% slower
+Symfony2 Cached - unknown route (1000 routes) | 985 | 0.037226 | +0.027661 | 289% slower
+FastRoute - unknown route (1000 routes) | 988 | 0.089904 | +0.080338 | 840% slower
+FastRoute(cached) - unknown route (1000 routes) | 988 | 0.091358 | +0.081792 | 855% slower
+FastRoute(cached) - last route (1000 routes) | 999 | 0.092567 | +0.083001 | 868% slower
+FastRoute - last route (1000 routes) | 999 | 0.113668 | +0.104103 | 1088% slower
+phroute/phroute - unknown route (1000 routes) | 987 | 0.168871 | +0.159305 | 1665% slower
+phroute/phroute - last route (1000 routes) | 999 | 0.169914 | +0.160348 | 1676% slower
+Pux PHP - unknown route (1000 routes) | 981 | 0.866280 | +0.856714 | 8956% slower
+Pux PHP - last route (1000 routes) | 999 | 0.941322 | +0.931757 | 9741% slower
+AltoRouter - unknown route (1000 routes) | 982 | 2.245384 | +2.235819 | 23373% slower
+AltoRouter - last route (1000 routes) | 979 | 2.281995 | +2.272429 | 23756% slower
+Symfony2 - unknown route (1000 routes) | 984 | 2.488247 | +2.478681 | 25912% slower
+Symfony2 - last route (1000 routes) | 999 | 2.540170 | +2.530605 | 26455% slower
+Macaw - unknown route (1000 routes) | 982 | 2.617635 | +2.608069 | 27265% slower
+Macaw - last route (1000 routes) | 999 | 2.700128 | +2.690562 | 28127% slower
+noodlehaus/dispatch - unknown route (1000 routes) | 972 | 4.729197 | +4.719632 | 49339% slower
+noodlehaus/dispatch - last route (1000 routes) | 999 | 4.942050 | +4.932484 | 51564% slower
 
 ## First route matching
 
 ```bash
-php run-tests.php
+php run-first-tests.php
 ```
 
 This benchmark tests how quickly each router can match the first route. 1,000 routes each with 9 arguments.
 
-This benchmark consists of 6 tests. Each test is executed 1,000 times, the results pruned, and then averaged. Values that fall outside of 3 standard deviations of the mean are discarded.
+This benchmark consists of 11 tests. Each test is executed 1,000 times, the results pruned, and then averaged. Values that fall outside of 3 standard deviations of the mean are discarded.
 
-Pux PHP - first route(1000) | 999 | 0.0000140631 | +0.0000000000 | baseline
-FastRoute - first route(1000) | 998 | 0.0000143997 | +0.0000003366 | 2% slower
-SRouter - first route(1000) | 996 | 0.0000171480 | +0.0000030848 | 22% slower
-ORouter - first route(1000) | 996 | 0.0000182364 | +0.0000041733 | 30% slower
-Symfony2 Dumped - first route | 991 | 0.0000339753 | +0.0000199121 | 142% slower
-Symfony2 - first route | 998 | 0.0000688385 | +0.0000547753 | 389% slower
-FastRoute(cached) - first route(1000) | 999 | 0.0001558740 | +0.0001418108 | 1008% slower
+Test Name | Results | Time(ms) | + Interval | Change
+--------- | ------- | ---- | ---------- | ------
+Pux PHP - first route(1000) | 997 | 0.006587 | +0.000000 | baseline
+FastRoute - first route(1000) | 999 | 0.008751 | +0.002165 | 33% slower
+phroute/phroute - first route (1000 routes) | 999 | 0.021902 | +0.015315 | 233% slower
+Symfony2 Dumped - first route | 997 | 0.022254 | +0.015667 | 238% slower
+ORouter - first route(1000) | 993 | 0.025026 | +0.018440 | 280% slower
+SRouter - first route(1000) | 997 | 0.025553 | +0.018967 | 288% slower
+noodlehaus/dispatch - first route (1000 routes) | 989 | 0.030126 | +0.023540 | 357% slower
+AltoRouter - first route (1000 routes) | 994 | 0.041488 | +0.034902 | 530% slower
+Symfony2 - first route | 991 | 0.047335 | +0.040748 | 619% slower
+FastRoute(cached) - first route(1000) | 999 | 0.092703 | +0.086117 | 1307% slower
+Macaw - first route (1000 routes) | 999 | 2.710132 | +2.703545 | 41047% slower
