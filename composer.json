@@ -1,19 +1,28 @@
 {
   "minimum-stability": "dev",
   "require": {
-    "nice/bench": "~1.0",
-    "nikic/fast-route": "dev-master",
+    "nice/bench": "dev-master",
+    "nikic/fast-route": "^1.2",
     "inhere/sroute": "dev-master",
     "phroute/phroute": "dev-master",
     "symfony/routing": "dev-master",
     "aura/router": "3.x-dev",
     "corneltek/pux": "dev-master",
-    "windwalker/router": "^3.0@dev"
+    "altorouter/altorouter": "dev-master",
+    "noahbuscher/macaw": "dev-master",
+    "noodlehaus/dispatch": "dev-master",
+    "league/route": "dev-master",
+    "dannyvankooten/php-router": "dev-master",
+    "klein/klein": "dev-master"
   },
   "repositories": {
       "packagist": {
           "type": "composer",
           "url": "https://packagist.phpcomposer.com"
+      },
+      "0": {
+         "type": "git",
+	     "url": "https://github.com/ulue/nice-bench"
       }
   }
 }

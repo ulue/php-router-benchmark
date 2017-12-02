@@ -14,6 +14,12 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
+use NoahBuscher\Macaw\Macaw;
+
+use Phroute\Phroute\RouteCollector;
+use Phroute\Phroute\Dispatcher;
+use Phroute\Phroute\Exception\HttpRouteNotFoundException;
+
 /**
  * Sets up the Worst-case matching benchmark.
  *
@@ -54,6 +60,11 @@ function setupBenchmark($numIterations, $numRoutes, $numArgs)
     setupSymfony2($benchmark, $numRoutes, $numArgs);
     setupSymfony2Optimized($benchmark, $numRoutes, $numArgs);
     setupPux($benchmark, $numRoutes, $numArgs);
+
+    setupAltoRouter($benchmark, $numRoutes, $numArgs);
+    setupPhroute($benchmark, $numRoutes, $numArgs);
+    setupNoahBuscherMacaw($benchmark, $numRoutes, $numArgs);
+    setupNoodlehausDispatch($benchmark, $numRoutes, $numArgs);
 
     return $benchmark;
 }
@@ -126,11 +137,11 @@ function setupSRouter(Benchmark $benchmark, $numbers, $argNum)
     "\n last route : {$lastStr}, \n route count: {$count}",
     "\n regularRoutes top level count: $regularRoutesNum, two level count(first top level element): $firstEleCount\n";
 
-    $benchmark->register(sprintf('SRouter - last route (%s routes)', $numbers), function () use ($lastStr) {
+    $benchmark->register(sprintf('inhere/sroute(SRouter) - last route (%s routes)', $numbers), function () use ($lastStr) {
         $route = SRouter::match($lastStr, 'GET');
     });
 
-    $benchmark->register(sprintf('SRouter - unknown route (%s routes)', $numbers), function () {
+    $benchmark->register(sprintf('inhere/sroute(SRouter) - unknown route (%s routes)', $numbers), function () {
         $route = SRouter::match('/not-even-real', 'GET');
     });
 }
@@ -154,14 +165,14 @@ function setupORouter(Benchmark $benchmark, $numbers, $argNum)
 
         $lastStr = str_replace(array('{', '}'), '', $str);
 
-        $router->map('GET', $str, 'handler' . $i);
+        $router->map('GET', $str, 'null_handler');
     }
 
-    $benchmark->register(sprintf('ORouter - last route (%s routes)', $numbers), function () use ($router, $lastStr) {
+    $benchmark->register(sprintf('inhere/sroute(ORouter) - last route (%s routes)', $numbers), function () use ($router, $lastStr) {
         $route = $router->match($lastStr, 'GET');
     });
 
-    $benchmark->register(sprintf('ORouter - unknown route (%s routes)', $numbers), function () use ($router) {
+    $benchmark->register(sprintf('inhere/sroute(ORouter) - unknown route (%s routes)', $numbers), function () use ($router) {
         $route = $router->match('/not-even-real', 'GET');
     });
 }
@@ -172,7 +183,7 @@ function setupORouter(Benchmark $benchmark, $numbers, $argNum)
 function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
 {
     $router = new CachedRouter([
-        'cacheFile' => __DIR__ . '/files/worst-case-cachedRouter.php',
+        'cacheFile' => dirname(__DIR__) . '/files/worst-case-cachedRouter.php',
         'cacheEnable' => false,
     ]);
     $str = $firstStr = $lastStr = '';
@@ -230,7 +241,7 @@ function setupFastRoute(Benchmark $benchmark, $routes, $args)
                 }
                 $lastStr = str_replace(array('{', '}'), '', $str);
 
-                $router->addRoute('GET', $str, 'handler' . $i);
+                $router->addRoute('GET', $str, 'null_handler');
             }
         });
 
@@ -261,10 +272,10 @@ function setupFastRouteCached(Benchmark $benchmark, $routes, $args)
             }
             $lastStr = str_replace(array('{', '}'), '', $str);
 
-            $router->addRoute('GET', $str, 'handler' . $i);
+            $router->addRoute('GET', $str, 'null_handler');
         }
     }, [
-        'cacheFile' => __DIR__ . '/files/worst-route-fst.cache', /* required */
+        'cacheFile' => dirname(__DIR__) . '/files/worst-route-fst.cache', /* required */
         'cacheDisabled' => false,     /* optional, enabled by default */
     ]);
 
@@ -296,7 +307,7 @@ function setupPux(Benchmark $benchmark, $routes, $args)
         }
         $lastStr = str_replace(':', '', $str);
 
-        $router->add($str, 'handler' . $i);
+        $router->add($str, 'null_handler');
     }
 
     $benchmark->register(sprintf('%s - last route (%s routes)', $name, $routes), function () use ($router, $lastStr) {
@@ -360,10 +371,10 @@ function setupSymfony2Optimized(Benchmark $benchmark, $routes, $args)
         $sfRoutes->add($str, new \Symfony\Component\Routing\Route($str, array('controller' => 'handler' . $i)));
     }
     $dumper = new PhpMatcherDumper($sfRoutes);
-    file_put_contents(__DIR__ . '/files/worst-case-sf2.php', $dumper->dump(array(
+    file_put_contents(dirname(__DIR__) . '/files/worst-case-sf2.php', $dumper->dump(array(
                 'class' => 'WorstCaseSf2UrlMatcher'
             )));
-    require_once __DIR__ . '/files/worst-case-sf2.php';
+    require_once dirname(__DIR__) . '/files/worst-case-sf2.php';
 
     $router = new \WorstCaseSf2UrlMatcher(new RequestContext());
 
@@ -414,4 +425,143 @@ function setupAura3(Benchmark $benchmark, $routes, $args)
     $benchmark->register(sprintf('Aura v2 - unknown route (%s routes)', $routes), function () use ($matcher) {
             $route = $matcher->match('/not-even-real');
         });
+}
+
+/*
+ * Sets up AltoRouter tests
+ */
+function setupAltoRouter(Benchmark $benchmark, $numbers, $argNum)
+{
+    $router = new \AltoRouter;
+    $str = $firstStr = $lastStr = '';
+    $argString = implode('/', array_map(function ($i) { return "[:arg$i]"; }, range(1, $argNum)));
+
+    for ($i = 0; $i < $numbers; $i++) {
+        list ($pre, $post) = getRandomParts();
+        $str = '/' . $pre . '/' . $argString . '/' . $post;
+
+        if (0 === $i) {
+            $firstStr = str_replace(array('[:', ']'), '', $str);
+        }
+
+        $lastStr = str_replace(array('[:', ']'), '', $str);
+
+        $router->map('GET', $str, 'null_handler');
+    }
+
+    $benchmark->register(sprintf('AltoRouter - last route (%s routes)', $numbers), function () use ($router, $lastStr) {
+        $route = $router->match($lastStr, 'GET');
+    });
+
+    $benchmark->register(sprintf('AltoRouter - unknown route (%s routes)', $numbers), function () use ($router) {
+        $route = $router->match('/not-even-real', 'GET');
+    });
+}
+
+/*
+ * Sets up phroute/phroute tests
+ */
+function setupPhroute(Benchmark $benchmark, $numbers, $argNum)
+{
+    $collector = new RouteCollector();
+    $str = $firstStr = $lastStr = '';
+    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $argNum)));
+
+    for ($i = 0; $i < $numbers; $i++) {
+        list ($pre, $post) = getRandomParts();
+        $str = '/' . $pre . '/' . $argString . '/' . $post;
+
+        if (0 === $i) {
+            $firstStr = str_replace(array('{', '}'), '', $str);
+        }
+
+        $lastStr = str_replace(array('{', '}'), '', $str);
+
+        $collector->get($str, 'null_handler');
+    }
+
+    $dispatcher =  new Dispatcher($collector->getData());
+
+    $benchmark->register(sprintf('phroute/phroute - last route (%s routes)', $numbers), function () use ($dispatcher, $lastStr) {
+        $dispatcher->dispatch('GET', $lastStr);
+    });
+
+    $benchmark->register(sprintf('phroute/phroute - unknown route (%s routes)', $numbers), function () use ($dispatcher) {
+        try {
+            $dispatcher->dispatch('GET', '/not-even-real');
+        } catch (HttpRouteNotFoundException $e) { }
+    });
+}
+
+/*
+ * Sets up NoahBuscher/Macaw tests
+ */
+function setupNoahBuscherMacaw(Benchmark $benchmark, $numbers, $argNum)
+{
+    $str = $firstStr = $lastStr = '';
+    $argString = implode('/', array_map(function ($i) { return "(:any)"; }, range(1, $argNum)));
+
+    for ($i = 0; $i < $numbers; $i++) {
+        list ($pre, $post) = getRandomParts();
+        $str = '/' . $pre . '/' . $argString . '/' . $post;
+
+        if (0 === $i) {
+            $firstStr = str_replace(array('(:', ')'), '', $str);
+        }
+
+        $lastStr = str_replace(array('(:', ')'), '', $str);
+
+        Macaw::get($str, function() {});
+    }
+
+    Macaw::$error_callback = function() {};
+
+    $benchmark->register(sprintf('Macaw - last route (%s routes)', $numbers), function () use ($lastStr) {
+        $_SERVER['REQUEST_URI'] = $lastStr;
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        Macaw::dispatch();
+    });
+
+    $benchmark->register(sprintf('Macaw - unknown route (%s routes)', $numbers), function () {
+        $_SERVER['REQUEST_URI'] = '/not-even-real';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
+        Macaw::dispatch();
+    });
+}
+
+/*
+ * Sets up noodlehaus/dispatch tests
+ */
+function setupNoodlehausDispatch(Benchmark $benchmark, $numbers, $argNum)
+{
+    $str = $firstStr = $lastStr = '';
+    $argString = implode('/', array_map(function ($i) { return "(:any$i)"; }, range(1, $argNum)));
+// var_dump(is_callable('null_handler'), null_handler());die;
+    for ($i = 0; $i < $numbers; $i++) {
+        list ($pre, $post) = getRandomParts();
+        $str = '/' . $pre . '/' . $argString . '/' . $post;
+
+        if (0 === $i) {
+            $firstStr = str_replace(array('(:', ')'), '', $str);
+        }
+
+        $lastStr = str_replace(array('(:', ')'), '', $str);
+
+        route('GET', $str, function() {
+            return response('');
+        });
+    }
+
+    $benchmark->register(sprintf('noodlehaus/dispatch - last route (%s routes)', $numbers), function () use ($lastStr) {
+        $_SERVER['REQUEST_URI'] = $lastStr;
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        dispatch();
+    });
+
+    $benchmark->register(sprintf('noodlehaus/dispatch - unknown route (%s routes)', $numbers), function () {
+        $_SERVER['REQUEST_URI'] = '/not-even-real';
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        dispatch();
+    });
 }
