@@ -191,6 +191,8 @@ function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
         $router->map('GET', $str, 'null_handler');
     }
 
+    $router->match($lastStr);
+
     // $benchmark->register(sprintf('ORouter(cached) - last route (%s routes)', $numbers), function () use ($router, $lastStr) {
     //     $route = $router->match($lastStr, 'GET');
     // });
