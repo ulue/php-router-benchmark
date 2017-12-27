@@ -2,14 +2,7 @@
 
 use Nice\Benchmark\BenchmarkCollection;
 
-error_reporting(E_ALL);
-
-require __DIR__ . '/vendor/autoload.php';
-
-function null_handler()
-{
-    return 'hello';
-}
+require __DIR__ . '/boot.php';
 
 $numIterations = 1000;
 $numRoutes = 1000;

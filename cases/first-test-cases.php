@@ -3,41 +3,35 @@
 namespace FirstRouteMatching;
 
 use Aura\Router\RouterContainer;
+use Inhere\Route\ORouter;
+use Inhere\Route\SRouter;
 use Nice\Benchmark\Benchmark;
 use Nice\Benchmark\ResultPrinter\MarkdownPrinter;
-use Inhere\Route\SRouter;
-use Inhere\Route\ORouter;
+use NoahBuscher\Macaw\Macaw;
+use Phroute\Phroute\Dispatcher;
+use Phroute\Phroute\RouteCollector;
 use Symfony\Component\Routing\Matcher\Dumper\PhpMatcherDumper;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-use NoahBuscher\Macaw\Macaw;
-
-use Phroute\Phroute\RouteCollector;
-use Phroute\Phroute\Dispatcher;
-use Phroute\Phroute\Exception\HttpRouteNotFoundException;
-
 /**
  * Sets up the First-route matching benchmark.
- *
  * This benchmark tests how quickly each router can match the first route
- *
  * @param int $numIterations 测试多少次
  * @param int $numRoutes 添加多少个路由
  * @param int $numArgs 参数节点长度
- *
  * @return Benchmark
  */
 function setupBenchmark($numIterations, $numRoutes, $numArgs)
 {
     $benchmark = new Benchmark($numIterations, 'First route matching', new MarkdownPrinter());
     $benchmark->setDescription(sprintf(
-            'This benchmark tests how quickly each router can match the first route. %s routes each with %s arguments.',
-            number_format($numRoutes),
-            $numArgs
-        ));
+        'This benchmark tests how quickly each router can match the first route. %s routes each with %s arguments.',
+        number_format($numRoutes),
+        $numArgs
+    ));
 
     echo "## Collect Routes Time(ms):\n\n";
 
@@ -55,8 +49,8 @@ function setupBenchmark($numIterations, $numRoutes, $numArgs)
 //        echo "R3 extension is not loaded. Skipping initialization for \"First route matching\" test using R3.\n";
 //    }
 
-    setupSymfony2($benchmark, $numRoutes, $numArgs);
-    setupSymfony2Optimized($benchmark, $numRoutes, $numArgs);
+    setupSymfony($benchmark, $numRoutes, $numArgs);
+    setupSymfonyOptimized($benchmark, $numRoutes, $numArgs);
     setupPux($benchmark, $numRoutes, $numArgs);
 
     setupAltoRouter($benchmark, $numRoutes, $numArgs);
@@ -114,7 +108,9 @@ function getRandomParts()
  */
 function setupSRouter(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
     $firstStr = '';
     $start = microtime(true);
 
@@ -129,12 +125,11 @@ function setupSRouter(Benchmark $benchmark, $routes, $args)
         SRouter::map('GET', $str, 'handler' . $i);
     }
 
-    $end = microtime(true);
-    $buildTime = number_format(($end - $start) * 1000, 3);
+    $buildTime = calc_time_consuming($start, microtime(true));
     echo "- inhere/sroute(SRouter): $buildTime ms\n";
 
     $benchmark->register(sprintf('SRouter - first route(%d)', $routes), function () use ($firstStr) {
-        $route = SRouter::match($firstStr, 'GET');
+        SRouter::match($firstStr);
     });
 }
 
@@ -148,7 +143,9 @@ function setupORouter(Benchmark $benchmark, $routes, $args)
 {
     $router = new ORouter;
     $firstStr = '';
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
     $start = microtime(true);
 
     for ($i = 0; $i < $routes; $i++) {
@@ -162,12 +159,11 @@ function setupORouter(Benchmark $benchmark, $routes, $args)
         $router->map('GET', $str, 'handler' . $i);
     }
 
-    $end = microtime(true);
-    $buildTime = number_format(($end - $start) * 1000, 3);
+    $buildTime = calc_time_consuming($start, microtime(true));
     echo "- inhere/sroute(ORouter): $buildTime ms\n";
 
     $benchmark->register(sprintf('ORouter - first route(%d)', $routes), function () use ($router, $firstStr) {
-        $route = $router->match($firstStr, 'GET');
+        $router->match($firstStr);
         //var_dump($firstStr, $route);die;
     });
 }
@@ -180,11 +176,13 @@ function setupORouter(Benchmark $benchmark, $routes, $args)
  */
 function setupFastRoute(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $str = $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
+    $firstStr = '';
     $start = microtime(true);
 
-    $router = \FastRoute\simpleDispatcher(function ($router) use ($routes, $argString, &$lastStr, &$firstStr) {
+    $router = \FastRoute\simpleDispatcher(function ($router) use ($routes, $argString, &$firstStr) {
         for ($i = 0; $i < $routes; $i++) {
             list ($pre, $post) = getRandomParts();
             $str = '/' . $pre . '/' . $argString . '/' . $post;
@@ -197,12 +195,11 @@ function setupFastRoute(Benchmark $benchmark, $routes, $args)
         }
     });
 
-    $end = microtime(true);
-    $buildTime = number_format(($end - $start) * 1000, 3);
+    $buildTime = calc_time_consuming($start, microtime(true));
     echo "- nikic/fast-route: $buildTime ms\n";
 
     $benchmark->register(sprintf('FastRoute - first route(%d)', $routes), function () use ($router, $firstStr) {
-        $route = $router->dispatch('GET', $firstStr);
+        $router->dispatch('GET', $firstStr);
     });
 }
 
@@ -211,11 +208,13 @@ function setupFastRoute(Benchmark $benchmark, $routes, $args)
  */
 function setupFastRouteCached(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
     $firstStr = '';
     $start = microtime(true);
 
-    $router = \FastRoute\cachedDispatcher(function ($router) use ($routes, $argString, &$lastStr, &$firstStr) {
+    $router = \FastRoute\cachedDispatcher(function ($router) use ($routes, $argString, &$firstStr) {
         for ($i = 0; $i < $routes; $i++) {
             list ($pre, $post) = getRandomParts();
             $str = '/' . $pre . '/' . $argString . '/' . $post;
@@ -231,12 +230,11 @@ function setupFastRouteCached(Benchmark $benchmark, $routes, $args)
         'cacheDisabled' => false,     /* optional, enabled by default */
     ]);
 
-    $end = microtime(true);
-    $buildTime = number_format(($end - $start) * 1000, 3);
+    $buildTime = calc_time_consuming($start, microtime(true));
     echo "- nikic/fast-route(cached): $buildTime ms\n";
 
     $benchmark->register(sprintf('FastRoute(cached) - first route(%d)', $routes), function () use ($router, $firstStr) {
-        $route = $router->dispatch('GET', $firstStr);
+        $router->dispatch('GET', $firstStr);
     });
 }
 
@@ -246,7 +244,9 @@ function setupFastRouteCached(Benchmark $benchmark, $routes, $args)
 function setupPux(Benchmark $benchmark, $routes, $args)
 {
     $name = extension_loaded('pux') ? 'Pux ext' : 'Pux PHP';
-    $argString = implode('/', array_map(function ($i) { return ':arg' . $i; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) {
+        return ':arg' . $i;
+    }, range(1, $args)));
     $firstStr = '';
     $router = new \Pux\Mux;
     $start = microtime(true);
@@ -262,12 +262,12 @@ function setupPux(Benchmark $benchmark, $routes, $args)
         $router->add($str, 'handler' . $i);
     }
 
-    $end = microtime(true);
-    $buildTime = number_format(($end - $start) * 1000, 3);
+    $buildTime = calc_time_consuming($start, microtime(true));
     echo "- corneltek/pux(php): $buildTime ms\n";
 
-    $benchmark->register(sprintf('%s - first route(%d)', $name, $routes), function () use ($router, $firstStr) {
-            $route = $router->match($firstStr);
+    $benchmark->register(sprintf('%s - first route(%d)', $name, $routes),
+        function () use ($router, $firstStr) {
+            $router->match($firstStr);
         });
 }
 
@@ -277,15 +277,17 @@ function setupPux(Benchmark $benchmark, $routes, $args)
  * @param $routes
  * @param $args
  */
-function setupSymfony2(Benchmark $benchmark, $routes, $args)
+function setupSymfony(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $str = $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
+    $firstStr = '';
     $sfRoutes = new RouteCollection();
     $router = new UrlMatcher($sfRoutes, new RequestContext());
     $start = microtime(true);
 
-    for ($i = 0, $str = 'a'; $i < $routes; $i++, $str++) {
+    for ($i = 0; $i < $routes; $i++) {
         list ($pre, $post) = getRandomParts();
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
@@ -296,36 +298,37 @@ function setupSymfony2(Benchmark $benchmark, $routes, $args)
         $sfRoutes->add($str, new Route($str, array('controller' => 'handler' . $i)));
     }
 
-    $end = microtime(true);
-    $buildTime = number_format(($end - $start) * 1000, 3);
+    $buildTime = calc_time_consuming($start, microtime(true));
     echo "- Symfony2/routing: $buildTime ms\n";
 
-    $benchmark->register('Symfony2 - first route', function () use ($router, $firstStr) {
-        $route = $router->match($firstStr);
+    $benchmark->register('Symfony - first route', function () use ($router, $firstStr) {
+        $router->match($firstStr);
     });
 }
 
 /**
- * Sets up Symfony2 optimized tests
+ * Sets up Symfony optimized tests
  * @param Benchmark $benchmark
  * @param $routes
  * @param $args
  */
-function setupSymfony2Optimized(Benchmark $benchmark, $routes, $args)
+function setupSymfonyOptimized(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $str = $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
+    $firstStr = '';
     $sfRoutes = new RouteCollection();
     $start = microtime(true);
 
-    for ($i = 0, $str = 'a'; $i < $routes; $i++, $str++) {
+    for ($i = 0; $i < $routes; $i++) {
         list ($pre, $post) = getRandomParts();
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
         if (0 === $i) {
             $firstStr = str_replace(array('{', '}'), '', $str);
         }
-        $lastStr = str_replace(array('{', '}'), '', $str);
+        // $lastStr = str_replace(array('{', '}'), '', $str);
 
         $sfRoutes->add($str, new Route($str, array('controller' => 'handler' . $i)));
     }
@@ -336,20 +339,19 @@ function setupSymfony2Optimized(Benchmark $benchmark, $routes, $args)
 
     $dumper = new PhpMatcherDumper($sfRoutes);
     file_put_contents(dirname(__DIR__) . '/files/first-route-sf2.php', $dumper->dump(array(
-                'class' => 'FirstRouteSf2UrlMatcher'
-            )));
+        'class' => 'FirstRouteSf2UrlMatcher'
+    )));
     require_once dirname(__DIR__) . '/files/first-route-sf2.php';
 
     $router = new \FirstRouteSf2UrlMatcher(new RequestContext());
 
-    $benchmark->register('Symfony2 Dumped - first route', function () use ($router, $firstStr) {
-        $route = $router->match($firstStr);
+    $benchmark->register('Symfony Cached - first route', function () use ($router, $firstStr) {
+        $router->match($firstStr);
     });
 }
 
 /**
  * Sets up Aura v3 tests(todo uncomplete ...)
- *
  * https://github.com/auraphp/Aura.Router
  * @param Benchmark $benchmark
  * @param $routes
@@ -357,8 +359,10 @@ function setupSymfony2Optimized(Benchmark $benchmark, $routes, $args)
  */
 function setupAura3(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $str = $firstStr ='';
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $args)));
+    $firstStr = '';
     $routerContainer = new RouterContainer();
     $router = $routerContainer->getMap();
     $start = microtime(true);
@@ -370,9 +374,9 @@ function setupAura3(Benchmark $benchmark, $routes, $args)
         if (0 === $i) {
             $firstStr = str_replace(array('{', '}'), '', $str);
         }
-        $lastStr = str_replace(array('{', '}'), '', $str);
+        // $lastStr = str_replace(array('{', '}'), '', $str);
 
-        $router->get($str, $str,array(
+        $router->get($str, $str, array(
             'controller' => 'handler' . $i
         ));
     }
@@ -384,8 +388,8 @@ function setupAura3(Benchmark $benchmark, $routes, $args)
     // get the route matcher from the container ...
     $matcher = $routerContainer->getMatcher();
 
-    $benchmark->register('Aura v2 - first route', function () use ($matcher, $firstStr) {
-        $route = $matcher->match($firstStr);
+    $benchmark->register('Aura v3 - first route', function () use ($matcher, $firstStr) {
+        $matcher->match($firstStr);
     });
 }
 
@@ -395,8 +399,10 @@ function setupAura3(Benchmark $benchmark, $routes, $args)
 function setupAltoRouter(Benchmark $benchmark, $numbers, $argNum)
 {
     $router = new \AltoRouter;
-    $str = $firstStr = '';
-    $argString = implode('/', array_map(function ($i) { return "[:arg$i]"; }, range(1, $argNum)));
+    $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "[:arg$i]";
+    }, range(1, $argNum)));
     $start = microtime(true);
 
     for ($i = 0; $i < $numbers; $i++) {
@@ -415,9 +421,10 @@ function setupAltoRouter(Benchmark $benchmark, $numbers, $argNum)
     $buildTime = number_format(($end - $start) * 1000, 3);
     echo "- altorouter/altorouter: $buildTime ms\n";
 
-    $benchmark->register(sprintf('AltoRouter - first route (%s routes)', $numbers), function () use ($router, $firstStr) {
-        $route = $router->match($firstStr, 'GET');
-    });
+    $benchmark->register(sprintf('AltoRouter - first route (%s routes)', $numbers),
+        function () use ($router, $firstStr) {
+            $router->match($firstStr, 'GET');
+        });
 }
 
 /*
@@ -426,8 +433,10 @@ function setupAltoRouter(Benchmark $benchmark, $numbers, $argNum)
 function setupPhroute(Benchmark $benchmark, $numbers, $argNum)
 {
     $collector = new RouteCollector();
-    $str = $firstStr = '';
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $argNum)));
+    $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "{arg$i}";
+    }, range(1, $argNum)));
     $start = microtime(true);
 
     for ($i = 0; $i < $numbers; $i++) {
@@ -445,11 +454,12 @@ function setupPhroute(Benchmark $benchmark, $numbers, $argNum)
     $buildTime = number_format(($end - $start) * 1000, 3);
     echo "- phroute/phroute: $buildTime ms\n";
 
-    $dispatcher =  new Dispatcher($collector->getData());
+    $dispatcher = new Dispatcher($collector->getData());
 
-    $benchmark->register(sprintf('phroute/phroute - first route (%s routes)', $numbers), function () use ($dispatcher, $firstStr) {
-        $dispatcher->dispatch('GET', $firstStr);
-    });
+    $benchmark->register(sprintf('phroute/phroute - first route (%s routes)', $numbers),
+        function () use ($dispatcher, $firstStr) {
+            $dispatcher->dispatch('GET', $firstStr);
+        });
 }
 
 /*
@@ -457,8 +467,10 @@ function setupPhroute(Benchmark $benchmark, $numbers, $argNum)
  */
 function setupNoahBuscherMacaw(Benchmark $benchmark, $numbers, $argNum)
 {
-    $str = $firstStr = '';
-    $argString = implode('/', array_map(function ($i) { return "(:any)"; }, range(1, $argNum)));
+    $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "(:any)";
+    }, range(1, $argNum)));
     $start = microtime(true);
 
     for ($i = 0; $i < $numbers; $i++) {
@@ -469,14 +481,16 @@ function setupNoahBuscherMacaw(Benchmark $benchmark, $numbers, $argNum)
             $firstStr = str_replace(array('(:', ')'), '', $str);
         }
 
-        Macaw::get($str, function() {});
+        Macaw::get($str, function () {
+        });
     }
 
     $end = microtime(true);
     $buildTime = number_format(($end - $start) * 1000, 3);
     echo "- noahbuscher/macaw: $buildTime ms\n";
 
-    Macaw::$error_callback = function() {};
+    Macaw::$error_callback = function () {
+    };
 
     $benchmark->register(sprintf('Macaw - first route (%s routes)', $numbers), function () use ($firstStr) {
         $_SERVER['REQUEST_URI'] = $firstStr;
@@ -490,8 +504,10 @@ function setupNoahBuscherMacaw(Benchmark $benchmark, $numbers, $argNum)
  */
 function setupNoodlehausDispatch(Benchmark $benchmark, $numbers, $argNum)
 {
-    $str = $firstStr = '';
-    $argString = implode('/', array_map(function ($i) { return "(:any$i)"; }, range(1, $argNum)));
+    $firstStr = '';
+    $argString = implode('/', array_map(function ($i) {
+        return "(:any$i)";
+    }, range(1, $argNum)));
     $start = microtime(true);
 
     for ($i = 0; $i < $numbers; $i++) {
@@ -502,7 +518,7 @@ function setupNoodlehausDispatch(Benchmark $benchmark, $numbers, $argNum)
             $firstStr = str_replace(array('(:', ')'), '', $str);
         }
 
-        route('GET', $str, function() {
+        route('GET', $str, function () {
             return response('');
         });
     }
@@ -511,9 +527,10 @@ function setupNoodlehausDispatch(Benchmark $benchmark, $numbers, $argNum)
     $buildTime = number_format(($end - $start) * 1000, 3);
     echo "- noodlehaus/dispatch: $buildTime ms\n";
 
-    $benchmark->register(sprintf('noodlehaus/dispatch - first route (%s routes)', $numbers), function () use ($firstStr) {
-        $_SERVER['REQUEST_URI'] = $firstStr;
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        dispatch();
-    });
+    $benchmark->register(sprintf('noodlehaus/dispatch - first route (%s routes)', $numbers),
+        function () use ($firstStr) {
+            $_SERVER['REQUEST_URI'] = $firstStr;
+            $_SERVER['REQUEST_METHOD'] = 'GET';
+            dispatch();
+        });
 }
