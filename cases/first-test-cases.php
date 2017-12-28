@@ -169,6 +169,41 @@ function setupORouter(Benchmark $benchmark, $routes, $args)
 }
 
 /**
+ * Sets up zqhong/route tests
+ * @param Benchmark $benchmark
+ * @param $routes
+ * @param $args
+ */
+function setupZqhongRoute(Benchmark $benchmark, $routes, $args)
+{
+    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $str = $firstStr = '';
+    $start = microtime(true);
+
+    /** @var \zqhong\route\RouteDispatcher $routeDispatcher */
+    $router = dispatcher(function ($router) use ($routes, $argString, &$lastStr, &$firstStr) {
+        for ($i = 0; $i < $routes; $i++) {
+            list ($pre, $post) = getRandomParts();
+            $str = '/' . $pre . '/' . $argString . '/' . $post;
+
+            if (0 === $i) {
+                $firstStr = str_replace(array('{', '}'), '', $str);
+            }
+
+            $router->addRoute('GET', $str, 'handler' . $i);
+        }
+    });
+
+    $end = microtime(true);
+    $buildTime = number_format(($end - $start) * 1000, 3);
+    echo "- zqhong/route: $buildTime ms\n";
+
+    $benchmark->register(sprintf('zqhong/route - first route(%d)', $routes), function () use ($router, $firstStr) {
+        $route = $router->dispatch('GET', $firstStr);
+    });
+}
+
+/**
  * Sets up FastRoute tests
  * @param Benchmark $benchmark
  * @param $routes

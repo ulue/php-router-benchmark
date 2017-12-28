@@ -4,6 +4,7 @@
     "nice/bench": "dev-master",
     "nikic/fast-route": "^1.2",
     "inhere/sroute": "dev-master",
+    "zqhong/route": "dev-master",
     "phroute/phroute": "dev-master",
     "symfony/routing": "dev-master",
     "aura/router": "3.x-dev",

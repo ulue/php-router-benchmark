@@ -181,10 +181,6 @@ function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
         list ($pre, $post) = getRandomParts();
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
-        // if (0 === $i) {
-        //     $firstStr = str_replace(array('{', '}'), '', $str);
-        // }
-
         $router->map('GET', $str, 'null_handler');
     }
 
@@ -198,6 +194,36 @@ function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
     // $benchmark->register(sprintf('ORouter(cached) - unknown route (%s routes)', $numbers), function () use ($router) {
     //     $route = $router->match('/not-even-real', 'GET');
     // });
+}
+
+/*
+ * Sets up zqhong/route tests
+ */
+function setupZqhongRoute(Benchmark $benchmark, $routes, $args)
+{
+    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $str = '';
+
+    /** @var \zqhong\route\RouteDispatcher $routeDispatcher */
+    $router = dispatcher(function ($router) use ($routes, $argString, &$lastStr) {
+        for ($i = 0; $i < $routes; $i++) {
+            list ($pre, $post) = getRandomParts();
+            $str = '/' . $pre . '/' . $argString . '/' . $post;
+
+            $router->addRoute('GET', $str, 'null_handler');
+        }
+    });
+
+    $lastStr = str_replace(array('{', '}'), '', $str);
+    $benchmark->register(sprintf('zqhong/route - last route (%s routes)', $routes),
+        function () use ($router, $lastStr) {
+            $route = $router->dispatch('GET', $lastStr);
+        });
+
+    $benchmark->register(sprintf('zqhong/route - unknown route (%s routes)', $routes),
+        function () use ($router) {
+            $route = $router->dispatch('GET', '/not-even-real');
+        });
 }
 
 /*
@@ -215,9 +241,6 @@ function setupFastRoute(Benchmark $benchmark, $routes, $args)
             list ($pre, $post) = getRandomParts();
             $str = '/' . $pre . '/' . $argString . '/' . $post;
 
-            // if (0 === $i) {
-            //     $firstStr = str_replace(array('{', '}'), '', $str);
-            // }
             $lastStr = str_replace(array('{', '}'), '', $str);
             $router->addRoute('GET', $str, 'null_handler');
         }
@@ -251,8 +274,8 @@ function setupFastRouteCached(Benchmark $benchmark, $routes, $args)
             // if (0 === $i) {
             //     $firstStr = str_replace(array('{', '}'), '', $str);
             // }
-            $lastStr = str_replace(array('{', '}'), '', $str);
 
+            $lastStr = str_replace(array('{', '}'), '', $str);
             $router->addRoute('GET', $str, 'null_handler');
         }
     }, [
