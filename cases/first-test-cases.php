@@ -40,6 +40,8 @@ function setupBenchmark($numIterations, $numRoutes, $numArgs)
     setupFastRoute($benchmark, $numRoutes, $numArgs);
     setupFastRouteCached($benchmark, $numRoutes, $numArgs);
 
+    // setupZqhongRoute($benchmark, $numRoutes, $numArgs);
+
     setupSRouter($benchmark, $numRoutes, $numArgs);
     setupORouter($benchmark, $numRoutes, $numArgs);
 
@@ -176,7 +178,7 @@ function setupORouter(Benchmark $benchmark, $routes, $args)
  */
 function setupZqhongRoute(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) { return "{arg$i:\w+}"; }, range(1, $args)));
     $str = $firstStr = '';
     $start = microtime(true);
 

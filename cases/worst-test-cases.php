@@ -41,6 +41,8 @@ function setupBenchmark($numIterations, $numRoutes, $numArgs)
     setupFastRoute($benchmark, $numRoutes, $numArgs);
     setupFastRouteCached($benchmark, $numRoutes, $numArgs);
 
+    // setupZqhongRoute($benchmark, $numRoutes, $numArgs);
+
     setupSRouter($benchmark, $numRoutes, $numArgs);
     setupORouter($benchmark, $numRoutes, $numArgs);
     setupCachedRouter($benchmark, $numRoutes, $numArgs);
@@ -201,7 +203,7 @@ function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
  */
 function setupZqhongRoute(Benchmark $benchmark, $routes, $args)
 {
-    $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
+    $argString = implode('/', array_map(function ($i) { return "{arg$i:\w+}"; }, range(1, $args)));
     $str = '';
 
     /** @var \zqhong\route\RouteDispatcher $routeDispatcher */
@@ -210,11 +212,11 @@ function setupZqhongRoute(Benchmark $benchmark, $routes, $args)
             list ($pre, $post) = getRandomParts();
             $str = '/' . $pre . '/' . $argString . '/' . $post;
 
+            $lastStr = str_replace(array('{', '}'), '', $str);
             $router->addRoute('GET', $str, 'null_handler');
         }
     });
 
-    $lastStr = str_replace(array('{', '}'), '', $str);
     $benchmark->register(sprintf('zqhong/route - last route (%s routes)', $routes),
         function () use ($router, $lastStr) {
             $route = $router->dispatch('GET', $lastStr);
