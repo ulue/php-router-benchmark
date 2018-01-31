@@ -336,7 +336,7 @@ function setupSymfony(Benchmark $benchmark, $routes, $args)
     }
 
     $buildTime = calc_time_consuming($start, microtime(true));
-    echo "- Symfony2/routing: $buildTime ms\n";
+    echo "- Symfony/routing: $buildTime ms\n";
 
     $benchmark->register('Symfony - first route', function () use ($router, $firstStr) {
         $router->match($firstStr);
@@ -372,7 +372,7 @@ function setupSymfonyOptimized(Benchmark $benchmark, $routes, $args)
 
     $end = microtime(true);
     $buildTime = number_format(($end - $start) * 1000, 3);
-    echo "- Symfony2/routing(cached): $buildTime ms\n";
+    echo "- Symfony/routing(cached): $buildTime ms\n";
 
     $dumper = new PhpMatcherDumper($sfRoutes);
     file_put_contents(dirname(__DIR__) . '/files/first-route-sf2.php', $dumper->dump(array(

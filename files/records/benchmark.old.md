@@ -17,16 +17,16 @@ SRouter - unknown route (1000 routes) | 961 | 0.0000113283 | +0.0000000000 | bas
 ORouter - unknown route (1000 routes) | 975 | 0.0000113920 | +0.0000000638 | 1% slower
 SRouter - last route (1000 routes) | 982 | 0.0000312148 | +0.0000198866 | 176% slower
 ORouter - last route (1000 routes) | 985 | 0.0000339114 | +0.0000225831 | 199% slower
-Symfony2 Dumped - unknown route (1000 routes) | 974 | 0.0000427746 | +0.0000314463 | 278% slower
-Symfony2 Dumped - last route (1000 routes) | 991 | 0.0000480992 | +0.0000367710 | 325% slower
+Symfony Dumped - unknown route (1000 routes) | 974 | 0.0000427746 | +0.0000314463 | 278% slower
+Symfony Dumped - last route (1000 routes) | 991 | 0.0000480992 | +0.0000367710 | 325% slower
 FastRoute - unknown route (1000 routes) | 971 | 0.0001323029 | +0.0001209747 | 1068% slower
 FastRoute(cached) - unknown route (1000 routes) | 975 | 0.0001375061 | +0.0001261779 | 1114% slower
 FastRoute(cached) - last route (1000 routes) | 999 | 0.0001393305 | +0.0001280022 | 1130% slower
 FastRoute - last route (1000 routes) | 999 | 0.0001744816 | +0.0001631533 | 1440% slower
 Pux PHP - unknown route (1000 routes) | 988 | 0.0013841902 | +0.0013728620 | 12119% slower
 Pux PHP - last route (1000 routes) | 999 | 0.0015292509 | +0.0015179226 | 13399% slower
-Symfony2 - unknown route (1000 routes) | 978 | 0.0041153194 | +0.0041039912 | 36228% slower
-Symfony2 - last route (1000 routes) | 999 | 0.0041823036 | +0.0041709754 | 36819% slower
+Symfony - unknown route (1000 routes) | 978 | 0.0041153194 | +0.0041039912 | 36228% slower
+Symfony - last route (1000 routes) | 999 | 0.0041823036 | +0.0041709754 | 36819% slower
 
 ## First route matching
 
@@ -45,6 +45,6 @@ Pux PHP - first route(1000) | 999 | 0.0000140631 | +0.0000000000 | baseline
 FastRoute - first route(1000) | 998 | 0.0000143997 | +0.0000003366 | 2% slower
 SRouter - first route(1000) | 996 | 0.0000171480 | +0.0000030848 | 22% slower
 ORouter - first route(1000) | 996 | 0.0000182364 | +0.0000041733 | 30% slower
-Symfony2 Dumped - first route | 991 | 0.0000339753 | +0.0000199121 | 142% slower
-Symfony2 - first route | 998 | 0.0000688385 | +0.0000547753 | 389% slower
+Symfony Dumped - first route | 991 | 0.0000339753 | +0.0000199121 | 142% slower
+Symfony - first route | 998 | 0.0000688385 | +0.0000547753 | 389% slower
 FastRoute(cached) - first route(1000) | 999 | 0.0001558740 | +0.0001418108 | 1008% slower
