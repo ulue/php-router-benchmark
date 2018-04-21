@@ -388,10 +388,10 @@ function setupSymfonyOptimized(Benchmark $benchmark, $routes, $args)
         $sfRoutes->add($str, new \Symfony\Component\Routing\Route($str, array('controller' => 'handler' . $i)));
     }
     $dumper = new PhpMatcherDumper($sfRoutes);
-    file_put_contents(dirname(__DIR__) . '/files/worst-case-sf2.php', $dumper->dump(array(
+    file_put_contents(dirname(__DIR__) . '/files/worst-case-sf.php', $dumper->dump(array(
         'class' => 'WorstCaseSf2UrlMatcher'
     )));
-    require_once dirname(__DIR__) . '/files/worst-case-sf2.php';
+    require_once dirname(__DIR__) . '/files/worst-case-sf.php';
 
     $router = new \WorstCaseSf2UrlMatcher(new RequestContext());
 

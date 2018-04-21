@@ -375,10 +375,10 @@ function setupSymfonyOptimized(Benchmark $benchmark, $routes, $args)
     echo "- Symfony/routing(cached): $buildTime ms\n";
 
     $dumper = new PhpMatcherDumper($sfRoutes);
-    file_put_contents(dirname(__DIR__) . '/files/first-route-sf2.php', $dumper->dump(array(
+    file_put_contents(dirname(__DIR__) . '/files/first-route-sf.php', $dumper->dump(array(
         'class' => 'FirstRouteSf2UrlMatcher'
     )));
-    require_once dirname(__DIR__) . '/files/first-route-sf2.php';
+    require_once dirname(__DIR__) . '/files/first-route-sf.php';
 
     $router = new \FirstRouteSf2UrlMatcher(new RequestContext());
 
