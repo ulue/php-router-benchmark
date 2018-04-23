@@ -2,19 +2,25 @@
   "minimum-stability": "dev",
   "require": {
     "nice/bench": "dev-master",
-    "nikic/fast-route": "^1.2",
+    "aura/router": "3.x-dev",
+    "nikic/fast-route": "dev-master as 1.0",
     "inhere/sroute": "dev-master",
     "zqhong/route": "dev-master",
     "phroute/phroute": "dev-master",
     "symfony/routing": "dev-master",
-    "aura/router": "3.x-dev",
     "corneltek/pux": "dev-master",
     "altorouter/altorouter": "dev-master",
     "noahbuscher/macaw": "dev-master",
     "noodlehaus/dispatch": "dev-master",
     "league/route": "dev-master",
     "dannyvankooten/php-router": "dev-master",
-    "klein/klein": "dev-master"
+    "klein/klein": "dev-master",
+    "bramus/router": "dev-master",
+    "torophp/torophp": "dev-master",
+    "conformity/router": "dev-master",
+    "bephp/router": "dev-master",
+    "baryshev/tree-route": "dev-master",
+    "mindplay/timber": "dev-master"
   },
   "repositories": {
       "packagist": {

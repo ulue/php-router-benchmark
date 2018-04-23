@@ -19,21 +19,10 @@ class `Nice\Benchmark` 87-89 line(bug):
 
 ## Test Router List
 
-```
-    "nikic/fast-route": "^1.2",
-    "inhere/sroute": "dev-master",
-    "phroute/phroute": "dev-master",
-    "symfony/routing": "dev-master",
-    "aura/router": "3.x-dev",
-    "corneltek/pux": "dev-master",
-    "altorouter/altorouter": "dev-master",
-    "noahbuscher/macaw": "dev-master",
-    "league/route": "dev-master",
-    "dannyvankooten/php-router": "dev-master",
-    "klein/klein": "dev-master"
-```
+> always use `dev-master` branch
 
 - `nikic/fast-route` https://github.com/nikic/FastRoute
+- `inhere/sroute` https://github.com/inhere/php-srouter
 - `klein/klein` https://github.com/klein/klein.php
 - `altorouter/altorouter` https://github.com/dannyvankooten/AltoRouter
 - `noahbuscher/macaw` https://github.com/noahbuscher/Macaw
@@ -43,7 +32,12 @@ class `Nice\Benchmark` 87-89 line(bug):
 - `phroute/phroute` https://github.com/mrjgreen/phroute
 - `symfony/routing` https://github.com/symfony/routing
 - `corneltek/pux` https://github.com/c9s/Pux
-- `inhere/sroute` https://github.com/inhere/php-srouter
+- `bramus/router` https://github.com/bramus/router
+- `torophp/torophp` https://github.com/bramus/router
+- `conformity/router` https://github.com/leemason/router
+- `bephp/router` https://github.com/bephp/router
+- `baryshev/tree-route` https://github.com/baryshev/TreeRoute
+- `mindplay/timber` https://github.com/mindplay-dk/timber
 
 
 ## Installation
