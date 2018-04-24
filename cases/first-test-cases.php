@@ -303,7 +303,7 @@ function setupLearnableConformity(Benchmark $benchmark, $routes, $args)
 {
     $name = 'conformity/router(Learnable)';
     $argString = implode('/', array_map(function ($i) { return "{arg$i}"; }, range(1, $args)));
-    $str = $firstStr = $lastStr = '';
+    $str = $firstStr = '';
     $router = new \Conformity\Router\LearnableCachedRouter(
         new \Conformity\Router\LearnableFileCache(dirname(__DIR__) . '/files/first-route-conformity.php')
     );
@@ -315,7 +315,7 @@ function setupLearnableConformity(Benchmark $benchmark, $routes, $args)
         if (0 === $i) {
             $firstStr = str_replace(array('{', '}'), '', $str);
         }
-        $lastStr = str_replace(array('{', '}'), '', $str);
+
         $router->get($str, 'handler' . $i);
     }
 
