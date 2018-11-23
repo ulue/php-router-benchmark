@@ -3,7 +3,7 @@
 namespace FirstRouteMatching;
 
 use Aura\Router\RouterContainer;
-use Inhere\Route\ORouter;
+use Inhere\Route\Router;
 use Inhere\Route\SRouter;
 use Nice\Benchmark\Benchmark;
 use Nice\Benchmark\ResultPrinter\MarkdownPrinter;
@@ -44,7 +44,7 @@ function setupBenchmark($numIterations, $numRoutes, $numArgs)
     // setupZqhongRoute($benchmark, $numRoutes, $numArgs);
 
     setupInhereSRouter($benchmark, $numRoutes, $numArgs);
-    setupInhereORouter($benchmark, $numRoutes, $numArgs);
+    setupInhereRouter($benchmark, $numRoutes, $numArgs);
 
 //    if (extension_loaded('r3')) {
 //        setupR3($benchmark, $numRoutes, $numArgs);
@@ -143,14 +143,14 @@ function setupInhereSRouter(Benchmark $benchmark, $routes, $args)
 }
 
 /**
- * Sets up Inhere\Route\ORouter tests
+ * Sets up Inhere\Route\Router tests
  * @param Benchmark $benchmark
  * @param $routes
  * @param $args
  */
-function setupInhereORouter(Benchmark $benchmark, $routes, $args)
+function setupInhereRouter(Benchmark $benchmark, $routes, $args)
 {
-    $router = new ORouter;
+    $router = new Router;
     $firstStr = '';
     $argString = implode('/', array_map(function ($i) {
         return "{arg$i}";
@@ -169,9 +169,9 @@ function setupInhereORouter(Benchmark $benchmark, $routes, $args)
     }
 
     $buildTime = calc_time_consuming($start, microtime(true));
-    echo "- inhere/sroute(ORouter): $buildTime ms\n";
+    echo "- inhere/sroute(Router): $buildTime ms\n";
 
-    $benchmark->register(sprintf('inhere/sroute(ORouter) - first(%d)', $routes), function () use ($router, $firstStr) {
+    $benchmark->register(sprintf('inhere/sroute(Router) - first(%d)', $routes), function () use ($router, $firstStr) {
         $router->match($firstStr);
         //var_dump($firstStr, $route);die;
     });

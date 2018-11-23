@@ -4,7 +4,7 @@ namespace WorstCaseMatching;
 
 use Aura\Router\RouterContainer;
 use Inhere\Route\CachedRouter;
-use Inhere\Route\ORouter;
+use Inhere\Route\Router;
 use Inhere\Route\SRouter;
 use Nice\Benchmark\Benchmark;
 use Nice\Benchmark\ResultPrinter\MarkdownPrinter;
@@ -44,7 +44,7 @@ function setupBenchmark($numIterations, $numRoutes, $numArgs)
     // setupZqhongRoute($benchmark, $numRoutes, $numArgs);
 
     setupInhereSRouter($benchmark, $numRoutes, $numArgs);
-    setupInhereORouter($benchmark, $numRoutes, $numArgs);
+    setupInhereRouter($benchmark, $numRoutes, $numArgs);
     setupCachedRouter($benchmark, $numRoutes, $numArgs);
 
 //
@@ -138,11 +138,11 @@ function setupInhereSRouter(Benchmark $benchmark, $numbers, $argNum)
 }
 
 /*
- * Sets up Inhere\Route\ORouter tests
+ * Sets up Inhere\Route\Router tests
  */
-function setupInhereORouter(Benchmark $benchmark, $numbers, $argNum)
+function setupInhereRouter(Benchmark $benchmark, $numbers, $argNum)
 {
-    $router = new ORouter;
+    $router = new Router;
     $str = '';
     $argString = implode('/', array_map(function ($i) {
         return "{arg$i}";
@@ -160,12 +160,12 @@ function setupInhereORouter(Benchmark $benchmark, $numbers, $argNum)
     }
 
     $lastStr = str_replace(array('{', '}'), '', $str);
-    $benchmark->register(sprintf('inhere/sroute(ORouter) - last route(%s routes)', $numbers),
+    $benchmark->register(sprintf('inhere/sroute(Router) - last route(%s routes)', $numbers),
         function () use ($router, $lastStr) {
             $router->match($lastStr);
         });
 
-    $benchmark->register(sprintf('inhere/sroute(ORouter) - unknown route(%s routes)', $numbers),
+    $benchmark->register(sprintf('inhere/sroute(Router) - unknown route(%s routes)', $numbers),
         function () use ($router) {
             $router->match('/not-even-real');
         });
@@ -195,11 +195,11 @@ function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
     $lastStr = str_replace(array('{', '}'), '', $str);
     $router->match($lastStr);
 
-    // $benchmark->register(sprintf('ORouter(cached) - last route(%s routes)', $numbers), function () use ($router, $lastStr) {
+    // $benchmark->register(sprintf('Router(cached) - last route(%s routes)', $numbers), function () use ($router, $lastStr) {
     //     $route = $router->match($lastStr, 'GET');
     // });
 
-    // $benchmark->register(sprintf('ORouter(cached) - unknown route(%s routes)', $numbers), function () use ($router) {
+    // $benchmark->register(sprintf('Router(cached) - unknown route(%s routes)', $numbers), function () use ($router) {
     //     $route = $router->match('/not-even-real', 'GET');
     // });
 }
