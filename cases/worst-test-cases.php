@@ -189,11 +189,12 @@ function setupCachedRouter(Benchmark $benchmark, $numbers, $argNum)
         list ($pre, $post) = getRandomParts();
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
-        $router->map('GET', $str, 'null_handler');
+        $router->add('GET', $str, 'null_handler');
     }
 
     $lastStr = str_replace(array('{', '}'), '', $str);
     $router->match($lastStr);
+    $router->completed();
 
     // $benchmark->register(sprintf('Router(cached) - last route(%s routes)', $numbers), function () use ($router, $lastStr) {
     //     $route = $router->match($lastStr, 'GET');
