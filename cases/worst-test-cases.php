@@ -123,7 +123,7 @@ function setupInhereSRouter(Benchmark $benchmark, $numbers, $argNum)
         list ($pre, $post) = getRandomParts();
         $str = '/' . $pre . '/' . $argString . '/' . $post;
 
-        SRouter::map('GET', $str, 'handler' . $i);
+        SRouter::add('GET', $str, 'handler' . $i);
     }
 
     $lastStr = str_replace(array('{', '}'), '', $str);
@@ -156,16 +156,16 @@ function setupInhereRouter(Benchmark $benchmark, $numbers, $argNum)
         //     $firstStr = str_replace(array('{', '}'), '', $str);
         // }
 
-        $router->map('GET', $str, 'null_handler');
+        $router->add('GET', $str, 'null_handler');
     }
 
     $lastStr = str_replace(array('{', '}'), '', $str);
-    $benchmark->register(sprintf('inhere/sroute(Router) - last route(%s routes)', $numbers),
+    $benchmark->register(sprintf('**inhere/sroute(Router)** - last route(%s routes)', $numbers),
         function () use ($router, $lastStr) {
             $router->match($lastStr);
         });
 
-    $benchmark->register(sprintf('inhere/sroute(Router) - unknown route(%s routes)', $numbers),
+    $benchmark->register(sprintf('**inhere/sroute(Router)** - unknown route(%s routes)', $numbers),
         function () use ($router) {
             $router->match('/not-even-real');
         });

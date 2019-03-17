@@ -7,15 +7,9 @@ dumb curiosity.
 - test frmaework is: https://github.com/ulue/nice-bench. it is forked form `nice/bench`
 - **Test time** 2017.12.03
 
-## Question
+## History Records
 
-class `Nice\Benchmark` 87-89 line(bug):
-
-```php
-    $start = microtime(1);
-    $test->run($this->parameters);
-    $testResults[] = round(microtime(1) - $start, 10);
-```
+> Please see [./records](./records)
 
 ## Test Router List
 

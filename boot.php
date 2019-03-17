@@ -4,6 +4,11 @@ error_reporting(E_ALL);
 
 require __DIR__ . '/vendor/autoload.php';
 
+global $argv;
+$numIterations = isset($argv[1]) ? (int)$argv[1] : 1000;
+$numArgs       = isset($argv[2]) ? (int)$argv[2] : 9;
+$numRoutes     = $numIterations;
+
 function null_handler()
 {
     return '';
